@@ -1,0 +1,12 @@
+google-generativeai>=0.5.0
+SpeechRecognition>=3.10.0
+pyaudio>=0.2.13
+pyttsx3>=2.90
+vosk>=0.3.40
+spotipy>=2.23.0
+wikipedia>=1.4.0
+duckduckgo-search>=5.0.0
+google-api-python-client>=2.100.0
+google-auth-oauthlib>=1.0.0
+google-auth-httplib2>=0.1.0
+requests>=2.31.0
