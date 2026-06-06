@@ -1,0 +1,17 @@
+{
+  "wake_word": "synergy",
+  "gemini_api_key": "YOUR_GEMINI_API_KEY_HERE",
+  "use_free_tier": true,
+  "spotify": {
+    "client_id": "YOUR_SPOTIFY_CLIENT_ID_HERE",
+    "client_secret": "YOUR_SPOTIFY_CLIENT_SECRET_HERE",
+    "redirect_uri": "http://localhost:8888/callback"
+  },
+  "google_calendar": {
+    "credentials_path": "credentials.json",
+    "token_path": "token.json"
+  },
+  "voice_id": "",
+  "voice_speed": 175,
+  "silent_mode": false
+}

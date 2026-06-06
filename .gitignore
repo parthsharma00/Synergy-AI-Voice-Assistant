@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Sensitive Configuration
+config.json
+credentials.json
+token.json
+*.key
+.env
+
+# Cache and Temporary Files
+.spotify_cache/
+*.cache
+*.log
+*.tmp
+
+# Vosk Model (too large for git, users download separately)
+vosk-model-small-en-us/
+vosk-model-*.zip
+
+# OS Specific
+Thumbs.db
+desktop.ini
