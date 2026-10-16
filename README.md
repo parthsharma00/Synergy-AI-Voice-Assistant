@@ -1,202 +1,124 @@
-<div align="center">
-  <h1>🎤 Synergy - Voice-Activated Desktop AI Assistant</h1>
-  <p>Your personal AI assistant that responds to voice commands</p>
-  <img src="https://img.shields.io/badge/Python-3.8+-blue.svg" alt="Python Version">
-  <img src="https://img.shields.io/badge/OS-Mac%20%7C%20Windows-lightgrey.svg" alt="Supported OS">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
-</div>
+# Synergy — Voice-Activated Desktop AI Assistant
 
-## ✨ Features
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-- **Voice Activation**: Say "Synergy" to wake up your assistant
-- **Music Control**: Play, pause, skip music on Spotify
-- **Calendar Management**: Add events and check your schedule
-- **Web Search**: Get answers from the internet
-- **Wikipedia Integration**: Look up facts and information
-- **Beautiful GUI**: Modern, dark-themed interface
-- **Offline Wake Word Detection**: Works without internet for wake word
+Say **"Synergy"** and talk to your computer. Synergy is a desktop voice assistant that listens for its wake word entirely offline, transcribes what you say locally, and then decides what to do: play music on Spotify, check or add to your Google Calendar, search the web, pull a Wikipedia summary, play something from YouTube, or just hold a conversation. I built it because most voice assistants either stream everything you say to the cloud or can't actually *do* anything on your own machine. Synergy keeps the always-listening part on-device and only reaches out to an LLM once you've deliberately woken it up.
 
-## 🚀 Quick Start
+> 📸 **Demo:** _screenshot / demo video coming soon_ <!-- replace with ![Synergy GUI](docs/screenshot.png) or a YouTube link -->
 
-### For Mac Users
-
-1. **Install Python 3.8+** (if not already installed)
-   - Download from [python.org](https://www.python.org/downloads/)
-   - Or use Homebrew: `brew install python`
-
-2. **Install Homebrew** (if needed for dependencies)
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-
-3. **Install PortAudio** (required for microphone access)
-   ```bash
-   brew install portaudio
-   ```
-
-4. **Clone the repository**
-   ```bash
-   git clone https://github.com/parthsharma00/Synergy-AI-Voice-Assistant.git
-   cd synergy
-   ```
-
-5. **Create a virtual environment**
-   ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-
-6. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-7. **Run the setup wizard**
-   ```bash
-   python main.py
-   ```
-   The wizard will guide you through:
-   - Downloading voice models
-   - Setting up API keys (optional free tier available)
-   - Configuring services
-
-8. **Start using Synergy**
-   ```bash
-   python main.py
-   ```
-   Say "Synergy" to activate!
-
-### For Windows Users
-
-1. **Install Python 3.8+**
-   - Download from [python.org](https://www.python.org/downloads/)
-   - During installation, check "Add Python to PATH"
-
-2. **Install Microsoft Visual C++ Build Tools** (required for PyAudio)
-   - Download from: [visualstudio.microsoft.com](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-   - Install "Desktop development with C++"
-
-3. **Clone the repository**
-   ```bash
-   git clone <your-repo-url>
-   cd synergy
-   ```
-
-4. **Create a virtual environment**
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate
-   ```
-
-5. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: If PyAudio fails, try: `pip install pipwin` then `pipwin install pyaudio`*
-
-6. **Run the setup wizard**
-   ```bash
-   python main.py
-   ```
-
-7. **Start using Synergy**
-   ```bash
-   python main.py
-   ```
-
-## 📋 Detailed Setup Guide
-
-For detailed step-by-step instructions with screenshots and troubleshooting, see [SETUP_GUIDE.md](SETUP_GUIDE.md)
-
-## 🔧 Configuration
-
-### API Keys (Optional)
-
-Synergy works in free tier mode by default. For full functionality, you can add:
-
-- **Gemini API Key** (for AI responses): Get from [Google AI Studio](https://makersuite.google.com/app/apikey)
-- **Spotify Credentials** (for music control): Get from [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-- **Google Calendar** (for calendar integration): Follow Google OAuth setup
-
-The setup wizard will guide you through adding these, or you can manually configure:
-
-1. Copy `config.json.template` to `config.json`
-2. Replace the placeholder values with your actual API keys
-3. Run `python main.py` to start using Synergy
-
-### Voice Commands
-
-- "Synergy" - Wake up the assistant
-- "Play [song name]" - Play music on Spotify
-- "Pause" / "Stop" - Pause music
-- "Skip" - Next track
-- "What's on my calendar?" - Check schedule
-- "Add event [description]" - Add calendar event
-- "Search for [query]" - Web search
-- "Who is [person]?" - Wikipedia lookup
-- Any conversational question - General AI chat
-
-## 📁 Project Structure
+## How it works
 
 ```
-synergy/
-├── main.py              # Entry point
-├── config.json          # Configuration (created after setup)
-├── requirements.txt     # Python dependencies
-├── core/               # Core AI components
-│   ├── brain.py        # AI brain (Gemini integration)
-│   ├── speech.py       # Speech recognition
-│   ├── tts.py          # Text-to-speech
-│   └── wake_word.py    # Wake word detection
-├── agents/             # Service integrations
-│   ├── spotify_agent.py
-│   ├── calendar_agent.py
-│   ├── wikipedia_agent.py
-│   ├── search_agent.py
-│   └── youtube_agent.py
-├── gui/                # User interface
-│   └── app.py          # Main GUI application
-└── setup/              # Setup wizard
-    └── first_run.py   # First-time configuration
+Microphone
+  └─> Wake word (Vosk, offline, small English model)
+        └─> Speech-to-text (faster-whisper locally, Google STT fallback)
+              └─> Brain
+                    ├─ Local intent matcher (regex, instant, no network)  ── e.g. "pause", "skip", "play X"
+                    └─ Gemini 2.5 Flash (structured JSON intent + reply)    ── anything open-ended
+                          └─> Agent router
+                                ├─ Spotify    (spotipy, OAuth)
+                                ├─ Calendar   (Google Calendar API)
+                                ├─ Web search (DuckDuckGo)
+                                ├─ Wikipedia
+                                └─ YouTube    (yt-dlp + ffplay)
+                                      └─> Reply spoken with pyttsx3 + shown in the Tkinter GUI
 ```
 
-## 🛠️ Troubleshooting
+A few design decisions worth calling out:
 
-**Microphone not working?**
-- Mac: Check System Preferences > Security & Privacy > Privacy > Microphone
-- Windows: Check Settings > Privacy > Microphone
+- **Two-tier intent routing.** Common commands ("pause", "next song", "play Blinding Lights") are matched locally with regex, so they execute instantly and cost nothing. Only ambiguous or conversational requests go to Gemini, which returns a structured `{intent, action, query, response}` object the router can act on.
+- **Privacy by default.** The wake-word model runs fully offline. Nothing leaves your machine until you say the wake word.
+- **Agents are pluggable.** Each integration is a small class with `is_configured()` and `execute_action()`, so adding a new one doesn't touch the core loop.
+- **First-run wizard.** A GUI setup flow writes your `config.json` so non-technical users never edit JSON by hand. `build.py` packages everything (including the Vosk model) into a double-clickable app with PyInstaller.
 
-**PyAudio installation fails?**
-- Mac: `brew install portaudio`
-- Windows: Install Visual C++ Build Tools or use `pipwin install pyaudio`
+## Tech stack
 
-**Voice model download fails?**
-- Check your internet connection
-- The model is ~50MB, ensure you have enough space
-- You can manually download from: https://alphacephei.com/vosk/models
+Python · Vosk · faster-whisper · Google Gemini API · Spotipy · Google Calendar API · DuckDuckGo Search · yt-dlp · pyttsx3 · Tkinter · PyInstaller
 
-## 📝 Requirements
+## Getting started
 
-- Python 3.8 or higher
-- Microphone
-- Internet connection (for AI responses and some features)
-- Speakers (for voice responses)
+**Requirements:** Python 3.10+, a microphone, and speakers.
 
-## 🤝 Contributing
+```bash
+git clone https://github.com/parthsharma00/Synergy-AI-Voice-Assistant.git
+cd Synergy-AI-Voice-Assistant
 
-Contributions are welcome! Feel free to submit issues or pull requests.
+# macOS only: PyAudio needs PortAudio
+brew install portaudio
 
-## 📄 License
+pip install -r requirements.txt
+pip install faster-whisper   # optional, for faster local transcription
+```
 
-This project is open source and available under the MIT License.
+Download the [Vosk small English model](https://alphacephei.com/vosk/models) and unzip it into the project root as `vosk-model-small-en-us/`.
 
-## 🙏 Acknowledgments
+Then run:
 
-- Google Generative AI for the AI brain
-- Vosk for offline speech recognition
-- Spotipy for Spotify integration
-- All other open-source libraries used
+```bash
+python main.py
+```
 
----
+The first launch opens the setup wizard. You can also configure it by hand: copy `config.json.template` to `config.json` and fill in your keys.
 
-**Made with ❤️ for voice-activated computing**
+| Key | Where to get it | Needed for |
+|---|---|---|
+| Gemini API key | [aistudio.google.com](https://aistudio.google.com) (free) | Conversational replies, open-ended commands |
+| Spotify client ID / secret | [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard) | Music control (Premium required for playback) |
+| Google Calendar credentials | Google Cloud Console → OAuth client | Reading and adding events |
+
+Every integration is optional. Synergy skips any agent you haven't configured. `config.json` and the Spotify token cache are gitignored, so your keys never get committed.
+
+See [`SETUP_GUIDE.md`](SETUP_GUIDE.md) and [`HOW_TO_RUN.md`](HOW_TO_RUN.md) for a step-by-step walkthrough and troubleshooting.
+
+### Example commands
+
+| You say | Synergy does |
+|---|---|
+| "Synergy… play Bohemian Rhapsody" | Plays it on Spotify |
+| "Pause" / "Skip" | Controls playback |
+| "What's on my calendar?" | Reads your next events |
+| "Add an event: dinner with Sam tomorrow at 7" | Creates a calendar event |
+| "Who is Ada Lovelace?" | Reads a Wikipedia summary |
+| "Search for the best laptop for CS students" | Reads back the top web results |
+| Anything else | Chats with you through Gemini |
+
+## Project structure
+
+```
+├── main.py               # Entry point: wizard on first run, then GUI + voice loop
+├── core/
+│   ├── wake_word.py      # Offline Vosk wake-word listener (background thread)
+│   ├── speech.py         # faster-whisper / Google STT transcription
+│   ├── brain.py          # Local intent matcher + Gemini intent parsing
+│   └── tts.py            # pyttsx3 voice output
+├── agents/               # Spotify, Calendar, Search, Wikipedia, YouTube
+├── gui/app.py            # Tkinter interface with live waveform
+├── setup/first_run.py    # First-run configuration wizard
+├── build.py              # PyInstaller packaging + optional autostart
+└── legacy/               # Earlier assistants Synergy grew out of (see below)
+```
+
+## Where it came from
+
+`legacy/` holds the two assistants I wrote before Synergy:
+
+- **`jarvis.py`:** my first voice assistant. It used hard-coded `if "play" in command` branches with Google STT, Wikipedia, and YouTube via pywhatkit.
+- **`JEErvisAdvanced.py`:** the second attempt. It added a wake word ("Genius") and used an OpenAI chat model for free-form answers.
+
+Synergy is the rewrite those two taught me I needed. It has an offline wake word, a real intent layer instead of string matching, and pluggable agents instead of one giant loop. The legacy scripts are kept as-is for reference and aren't maintained.
+
+## Roadmap
+
+- [ ] Custom wake-word training
+- [ ] Conversation memory across sessions
+- [ ] Linux support
+- [ ] More agents (email, smart home, notes)
+
+## Author
+
+**Parth Sharma**, Computer Science & Design at the Singapore University of Technology and Design (SUTD)
+[GitHub](https://github.com/parthsharma00) · [LinkedIn](https://www.linkedin.com/in/parth-sharmasutd) · parthsharma72007@gmail.com
+
+Released under the [MIT License](LICENSE).
