@@ -54,3 +54,10 @@ vosk-model-*.zip
 # OS Specific
 Thumbs.db
 desktop.ini
+
+# Spotify OAuth token cache (contains live tokens)
+.spotify_cache
+.cache
+.cache-*
+config.json
+.env
